@@ -1,0 +1,8 @@
+body {
+  margin: 0;
+  padding: 0;
+  /* background-image: url("../public/back.jpg"); */ /* Comentado para eliminar la imagen de fondo */
+  background-size: 50%; /* Esta línea también puede eliminarse si no tiene propósito sin la imagen */
+  background-position: center;
+  /* Otros estilos según sea necesario */
+}
