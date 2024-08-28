@@ -1,0 +1,279 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.productos-container {
+    width: 100%;
+    max-width: 2200px;
+    margin: 0 auto; /* Elimina el margen superior e inferior para que el contenedor ocupe todo el espacio */
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    min-height: calc(100vh - 40px); /* Ajusta la altura mínima para ocupar toda la pantalla */
+}
+
+.productos-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.productos-container table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* Mantiene las columnas en tamaño fijo */
+}
+
+.productos-container th, .productos-container td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.productos-container th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.productos-container .table-wrapper {
+    max-height: 500px; /* Establece una altura máxima para el área visible de la tabla */
+    overflow-y: auto; /* Agrega desplazamiento vertical si el contenido excede la altura máxima */
+    border: 1px solid #ddd; /* Agrega un borde para distinguir el área de desplazamiento */
+}
+
+.error-message {
+    text-align: center;
+    color: red;
+    margin-bottom: 20px;
+}
+
+
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.4); 
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 60%;
+    max-width: 600px;
+    margin: auto;
+    z-index: 1001;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.modal-form {
+    display: flex;
+    flex-direction: column;
+}
+.form-row {
+    margin-bottom: 10px; /* Añade espacio entre las filas */
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Asegura que las filas ocupen todo el ancho disponible */
+}
+.form-row label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+.modal-buttons button {
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    width: 48%; /* Asegura que los botones sean del mismo tamaño */
+}
+
+.modal-buttons button:last-child {
+    background-color: #dc3545;
+}
+.modal-buttons button:hover {
+    opacity: 0.9;
+}
+.form-row input,
+.form-row select {
+    width: 100%; /* Asegura que todos los inputs y selects ocupen el mismo ancho */
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Asegura que el padding se incluya en el ancho total */
+}
+
+.header-container{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    width: 100%;
+}
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacio entre los elementos */
+}
+
+.search-container select,
+.search-container input {
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+.search-container button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: none;
+    background-color: #28a745;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.table-options {
+    position: relative;
+    display: inline-block;
+}
+
+.table-options .options-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #007bff;
+}
+
+.table-options .options-menu {
+    display: block;
+    position: absolute;
+    left: -100px; /* Ajusta esta distancia según sea necesario */
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    z-index: 1000;
+    min-width: 120px;
+}
+
+.table-options .options-menu a {
+    display: block;
+    padding: 10px 20px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    border-bottom: 1px solid #ddd;
+}
+
+.table-options .options-menu a:last-child {
+    border-bottom: none;
+}
+
+.table-options .options-menu a:hover {
+    background-color: #f4f4f4;
+}
+
+.table-options:hover .options-menu {
+    display: block;
+}
+.table-options {
+    position: relative;
+    display: inline-block;
+}
+
+/* productos.css */
+table {
+    table-layout: fixed; /* Fuerza a las columnas a mantener un tamaño fijo */
+    width: 100%; /* Asegura que la tabla ocupe todo el ancho disponible */
+}
+
+td, th {
+    width: 15%; /* Ajusta este valor según tus necesidades */
+    padding: 8px;
+    text-align: left;
+    word-wrap: break-word; /* Para evitar que el contenido sobresalga de las celdas */
+}
+
+input[type="text"], select {
+    width: 100%; /* Asegura que los campos de entrada ocupen todo el espacio de la celda */
+    box-sizing: border-box; /* Incluye el padding y border dentro del tamaño total del elemento */
+}
+
+button {
+    white-space: nowrap; /* Evita que el texto dentro del botón se rompa en múltiples líneas */
+}
+
+
+.productos-container th:nth-child(4), 
+.productos-container td:nth-child(4) {
+    width: 50%; /* Ajusta este valor según la longitud que necesites */
+    word-wrap: break-word; /* Permite que el texto se divida en líneas si es necesario */
+}
+
+input[type="checkbox"] {
+    transform: scale(1.5);
+    -webkit-transform: scale(1.5);
+    -moz-transform: scale(1.5);
+    -ms-transform: scale(1.5);
+    -o-transform: scale(1.5);
+    margin: 10px; /* Ajusta el margen si es necesario */
+    cursor: pointer; /* Para que se vea más interactivo */
+}
+
+.titulo {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+    width: 100%;
+    padding: 10px 0;
+    box-sizing: border-box;
+}
+
+
+
+

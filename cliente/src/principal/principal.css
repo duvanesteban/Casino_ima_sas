@@ -1,0 +1,75 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.principal-container {
+    width: 88%;
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #f0f0f0;
+    position: relative;
+    height: 100vh; /* Asegura que el contenedor ocupe toda la altura disponible */
+}
+
+.left-panel, .right-panel {
+    width: 50%; /* Ajusta el ancho para que haya espacio para el botón */
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.right-panel {
+    position: relative; /* Asegura que el botón se posicione correctamente dentro del panel */
+}
+
+.product-button-container {
+    position: absolute;
+    top: -1px; /* Ajusta según sea necesario para que quede en la esquina superior derecha */
+    right: -160px; /* Ajusta según sea necesario para que quede en la esquina superior derecha */
+    z-index: 10;
+}
+
+.product-button {
+    background-color: white;
+    border: 2px solid #000; /* Borde negro */
+    border-radius: 10px; /* Bordes redondeados */
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.product-button img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.product-button span {
+    color: black; /* Texto en negro */
+    font-weight: bold; /* Texto en negrilla */
+    font-size: 16px; /* Tamaño de fuente */
+}
+.left-panel div{
+    margin-bottom: 1%;
+}
+.buttons {
+    display: flex;
+    margin-right: 40px;
+}
+.buttons button {
+    flex-grow: 1; /* Permite que cada botón crezca proporcionalmente */
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    margin-right: 10px; /* Espacio entre los botones */
+}
+
+.buttons button:last-child {
+    margin-right: 0; /* Elimina el margen derecho en el último botón */
+}
