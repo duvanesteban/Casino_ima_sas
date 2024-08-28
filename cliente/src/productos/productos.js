@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'; 
 import axios from 'axios'; 
 import ReactModal from 'react-modal'; 
+import * as XLSX from 'xlsx';
 import './productos.css';
 
 ReactModal.setAppElement('#root');
@@ -62,6 +63,55 @@ function Productos() {
                 console.error('Hubo un error al obtener los productos', error);
                 setProductos([]); 
             });
+    };
+
+    // Función para generar el archivo Excel
+    const handleGenerateExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(productos);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Productos");
+        XLSX.writeFile(workbook, "productos.xlsx");
+    };
+
+    // Función para generar una plantilla de Excel
+    const handleGenerateTemplate = () => {
+        const maxId = productos.reduce((max, producto) => (producto.idProducto > max ? producto.idProducto : max), 0);
+
+        const templateData = [
+            { idProducto: maxId + 1, tipo: 'Preparado', nombreProducto: 'Producto de Ejemplo', valorUnitario: 1000, estado: 'Activo' },
+            { idProducto: maxId + 2, tipo: 'Comprado', nombreProducto: 'Otro Producto de Ejemplo', valorUnitario: 2000, estado: 'Inactivo' }
+        ];
+
+        const worksheet = XLSX.utils.json_to_sheet(templateData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "PlantillaProductos");
+        XLSX.writeFile(workbook, "plantilla_productos.xlsx");
+    };
+
+    // Función para manejar la subida de un archivo Excel
+    const handleUploadExcel = (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+            // Aquí podrías enviar jsonData al backend o procesarlo como desees
+            axios.post('http://localhost:3002/productos', jsonData)
+                .then(response => {
+                    fetchProductos(); // Refrescar la lista de productos después de cargar el Excel
+                })
+                .catch(error => {
+                    setError('Hubo un error al cargar el archivo Excel. Por favor, inténtalo nuevamente.');
+                    console.error('Hubo un error al cargar el archivo Excel', error);
+                });
+        };
+
+        reader.readAsArrayBuffer(file);
     };
 
     const handleInputChange = (e) => {
@@ -197,7 +247,7 @@ function Productos() {
             <h1 className="titulo">Lista de Productos ({productos.length})</h1>  {/* Título separado y centrado */}
             <div className="header-container">
                 <div className="search-container">
-                <button
+                  <button
                         onClick={handleDeleteSelectedProducts}
                         className="delete-button"
                         disabled={selectedProducts.length === 0}
@@ -234,10 +284,20 @@ function Productos() {
                     />
                     <button onClick={handleClearFilters}>Limpiar Filtros</button> {/* Botón para limpiar filtros */}
                     <button onClick={handleOpenModal}>Agregar Producto</button>
+                    <button onClick={handleGenerateExcel}>Generar Excel</button> {/* Botón para generar Excel */}
 
                 </div>
+
+                
             </div>
-    
+            <div className='search-container'>
+            <button onClick={handleGenerateTemplate}>Generar Plantilla Excel</button> {/* Botón para generar Plantilla Excel */}
+                    <input 
+                        type="file" 
+                        accept=".xlsx, .xls" 
+                        onChange={handleUploadExcel} 
+                    /> {/* Botón para subir Excel */}
+            </div>
             {error && (
                 <p className="error-message">{error}</p>
             )}

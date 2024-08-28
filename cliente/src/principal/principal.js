@@ -43,19 +43,23 @@ function Principal() {
                             <input type="text" id="precio" />
                         </div>
                         <div>
-                            <label htmlFor="cantidad">Cantidad</label>
-                            <input 
-                                type="number" 
-                                id="cantidad" 
-                                min="1" 
-                                value={cantidad} 
-                                onChange={(e) => setCantidad(parseInt(e.target.value) || 1)} 
-                            />
-                        </div>
+                        <label htmlFor="cantidad">Cantidad</label>
+                        <input 
+                            type="number" 
+                            id="cantidad" 
+                            min="1" 
+                            value={cantidad} 
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (/^\d*$/.test(value)) { // Asegura que solo se ingrese un número
+                                    setCantidad(value ? parseInt(value) : '');
+                                }
+                            }} 
+                        />
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="metodo-pago">Metodo de Pago</label>
-                        <input type="text" id="metodo-pago" />
+
+
+
                     </div>
                     <div className="total-section">
                         Valor Producto
@@ -63,14 +67,20 @@ function Principal() {
                         TOTAL
                     </div>
                     <div className="form-group">
-                        <label htmlFor="valor-recibido">Valor Recibido</label>
-                        <input 
-                            type="number" 
-                            id="valor-recibido" 
-                            value={valorRecibido} 
-                            onChange={handleCambio} 
-                        />
-                    </div>
+                    <label htmlFor="valor-recibido">Valor Recibido</label>
+                    <input 
+                        type="text" 
+                        id="valor-recibido" 
+                        value={valorRecibido} 
+                        onChange={(e) => {
+                            const valor = e.target.value;
+                            if (/^\d*\.?\d*$/.test(valor)) { // Permite solo números y un punto decimal
+                                setValorRecibido(valor);
+                            }
+                        }} 
+                    />
+                </div>
+
                     <div className="form-group">
                         <label>Cambio</label>
                         <div className="cambio-value">{cambio.toFixed(2)}</div>
@@ -83,36 +93,37 @@ function Principal() {
                 </form>
             </div>
             <div className="right-panel">
-                <div className="receipt">
-                    <h2>CASINO IMA S.A.</h2>
-                    <p>11/08/2024 22:51</p>
-                    <p>Administradora Casino</p>
-                    <p className="receipt-number">RECIBO #{numeroRecibo}</p>
-                    <div className="receipt-table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style={{ width: '400px' }}>Producto</th>
-                                    <th style={{ width: '20%' }}>Cant.</th>
-                                    <th style={{ width: '20%' }}>Precio</th>
-                                    <th style={{ width: '20%' }}>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {/* Aquí se listarán los productos */}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div className="product-button-container">
-                <button className="product-button" onClick={handleNavigateToProductos}>
-                    <img src="ruta-a-la-imagen-del-carrito.png" alt="Productos" />
-                    <span>Productos</span>
-                </button>
-            </div>
+    <div className="receipt">
+        <h2>CASINO IMA S.A.</h2>
+        <p>11/08/2024 22:51</p>
+        <p>Administradora Casino</p>
+        <p className="receipt-number">RECIBO #{numeroRecibo}</p>
+        <div className="receipt-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th style={{ width: '200px' }}>Producto</th>
+                        <th style={{ width: '20%' }}>Cant.</th>
+                        <th style={{ width: '20%' }}>Precio</th>
+                        <th style={{ width: '20%' }}>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {/* Aquí se listarán los productos */}
+                </tbody>
+            </table>
         </div>
+    </div>
+    <div className="product-button-container">
+        <button className="product-button" onClick={handleNavigateToProductos}>
+            <img src="ruta-a-la-imagen-del-carrito.png" alt="Productos" />
+            <span>Productos</span>
+        </button>
+    </div>
+</div>
+</div> 
     );
 }
+
 
 export default Principal;
