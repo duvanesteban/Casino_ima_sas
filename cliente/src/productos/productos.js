@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect, useRef} from 'react'; 
 import axios from 'axios'; 
 import ReactModal from 'react-modal'; 
 import * as XLSX from 'xlsx';
@@ -7,6 +7,7 @@ import './productos.css';
 ReactModal.setAppElement('#root');
 
 function Productos() {
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [productos, setProductos] = useState([]);
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,13 +24,30 @@ function Productos() {
         nombreProducto: '',
         estado: ''
     });
+    const dropdownRef = useRef(null); // Referencia para el menú desplegable
     const [isEditing, setIsEditing] = useState(null);
     const [updatedProduct, setUpdatedProduct] = useState({});
     const [selectedProducts, setSelectedProducts] = useState([]);
+    const [uploadedExcelData, setUploadedExcelData] = useState([]); // Nueva línea para manejar datos cargados desde Excel
 
     useEffect(() => {
         fetchProductos();
     }, [filters]);
+
+    
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropdownOpen(false);
+            }
+        };
+        
+        document.addEventListener("mousedown", handleClickOutside);
+        
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [dropdownRef]);
 
     const fetchProductos = () => {
         let url = 'http://localhost:3002/productos';
@@ -67,7 +85,17 @@ function Productos() {
 
     // Función para generar el archivo Excel
     const handleGenerateExcel = () => {
-        const worksheet = XLSX.utils.json_to_sheet(productos);
+        // Mapear los productos para reorganizar las propiedades en el orden deseado
+        const productosOrdenados = productos.map(producto => ({
+            idProducto: producto.idProducto,
+            tipo: producto.tipo,
+            nombreProducto: producto.nombreProducto,  // Colocamos "nombreProducto" como segunda columna
+            valorUnitario: producto.valorUnitario,
+            estado: producto.estado
+        }));
+    
+        // Generar la hoja de trabajo con los productos en el nuevo orden
+        const worksheet = XLSX.utils.json_to_sheet(productosOrdenados);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Productos");
         XLSX.writeFile(workbook, "productos.xlsx");
@@ -91,27 +119,57 @@ function Productos() {
     // Función para manejar la subida de un archivo Excel
     const handleUploadExcel = (event) => {
         const file = event.target.files[0];
-        const reader = new FileReader();
-        
-        reader.onload = (e) => {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-            // Aquí podrías enviar jsonData al backend o procesarlo como desees
-            axios.post('http://localhost:3002/productos', jsonData)
-                .then(response => {
-                    fetchProductos(); // Refrescar la lista de productos después de cargar el Excel
-                })
-                .catch(error => {
-                    setError('Hubo un error al cargar el archivo Excel. Por favor, inténtalo nuevamente.');
-                    console.error('Hubo un error al cargar el archivo Excel', error);
+        if (file) {
+            const reader = new FileReader();
+    
+            reader.onload = (e) => {
+                const data = e.target.result;
+                const workbook = XLSX.read(data, { type: 'binary' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    
+                // Validar los datos del Excel
+                const isValid = jsonData.every(row => {
+                    const { idProducto, tipo, valorUnitario, estado } = row;
+    
+                    const isIdValid = typeof idProducto === 'number' && !isNaN(idProducto);
+                    const isTipoValid = tipo === 'Preparado' || tipo === 'Comprado';
+                    const isValorUnitarioValid = typeof valorUnitario === 'number' && !isNaN(valorUnitario);
+                    const isEstadoValid = estado === 'Activo' || estado === 'Inactivo';
+    
+                    return isIdValid && isTipoValid && isValorUnitarioValid && isEstadoValid;
                 });
-        };
+    
+                if (isValid) {
+                    setUploadedExcelData(jsonData); // Guardar los datos cargados
+                } else {
+                    setError('Error: El archivo Excel contiene datos inválidos. Por favor verifica que los campos "idProducto", "tipo", "valorUnitario" y "estado" sean correctos.');
+                    setUploadedExcelData([]); // Limpiar los datos cargados si hay un error
+                }
+            };
+    
+            reader.onerror = (error) => {
+                console.error("Error al leer el archivo:", error);
+            };
+    
+            reader.readAsBinaryString(file);
+        }
+    };
+    
+    
 
-        reader.readAsArrayBuffer(file);
+    // Nueva función para agregar productos desde el archivo Excel cargado
+    const handleAddProductosFromExcel = () => {
+        axios.post('http://localhost:3002/productos/', uploadedExcelData)
+            .then(response => {
+                fetchProductos(); // Refrescar la lista de productos después de agregar
+                setUploadedExcelData([]); // Limpiar los datos cargados
+            })
+            .catch(error => {
+                setError('Hubo un error al agregar los productos desde Excel. Por favor, inténtalo nuevamente.');
+                console.error('Hubo un error al agregar los productos desde Excel', error);
+            });
     };
 
     const handleInputChange = (e) => {
@@ -241,10 +299,43 @@ function Productos() {
         });
         setIsModalOpen(true);
     };
+    const toggleDropdown = () => {
+        setIsDropdownOpen(!isDropdownOpen);
+    };
 
     return (
         <div className="productos-container">
-            <h1 className="titulo">Lista de Productos ({productos.length})</h1>  {/* Título separado y centrado */}
+          <div className='InformacionSuperior'>
+                <h1 className="titulo">Lista de Productos ({productos.length})</h1>  {/* Título separado y centrado */}
+         <div className="dropdown-container" ref={dropdownRef}>
+                    <button onClick={toggleDropdown} className="dropdown-toggle">
+                        {/* Aquí va el ícono o las tres líneas que deseas mostrar */}
+                        ☰
+                    </button>
+
+                    {isDropdownOpen && (
+            <div className="dropdown-menu">
+                <button onClick={handleGenerateTemplate}>Generar Plantilla Excel</button>
+                <input 
+                    type="file" 
+                    accept=".xlsx, .xls" 
+                    onChange={handleUploadExcel} 
+                />
+                <button 
+                    onClick={handleAddProductosFromExcel} 
+                    disabled={uploadedExcelData.length === 0}
+                >
+                    Agregar Productos desde Excel
+                </button>
+                <button onClick={handleGenerateExcel}>Generar Excel</button>
+                <button onClick={handleOpenModal}>Agregar Producto</button>
+            </div>
+        )}
+
+      </div>
+    </div>
+
+
             <div className="header-container">
                 <div className="search-container">
                   <button
@@ -283,28 +374,20 @@ function Productos() {
                         onChange={handleFilterChange}
                     />
                     <button onClick={handleClearFilters}>Limpiar Filtros</button> {/* Botón para limpiar filtros */}
-                    <button onClick={handleOpenModal}>Agregar Producto</button>
-                    <button onClick={handleGenerateExcel}>Generar Excel</button> {/* Botón para generar Excel */}
+                
 
                 </div>
 
                 
             </div>
-            <div className='search-container'>
-            <button onClick={handleGenerateTemplate}>Generar Plantilla Excel</button> {/* Botón para generar Plantilla Excel */}
-                    <input 
-                        type="file" 
-                        accept=".xlsx, .xls" 
-                        onChange={handleUploadExcel} 
-                    /> {/* Botón para subir Excel */}
-            </div>
+
             {error && (
                 <p className="error-message">{error}</p>
             )}
     
             <div className="table-wrapper">
                 <table>
-                    <thead>
+                    <thead className="TitulosTabla">
                         <tr>
                             <th>
                                 <input

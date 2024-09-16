@@ -1,3 +1,8 @@
+html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
 * {
     margin: 0;
     padding: 0;
@@ -14,16 +19,18 @@
     min-height: calc(100vh - 40px); /* Ajusta la altura mínima para ocupar toda la pantalla */
 }
 
-.productos-container h1 {
-    text-align: center;
-    margin-bottom: 20px;
+.productos-container .titulo {
     font-size: 24px;
+    margin: 0;
+    flex-grow: 1; /* Permite que el título ocupe todo el espacio disponible */
+    text-align: center;
 }
+
 
 .productos-container table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
-    table-layout: fixed; /* Mantiene las columnas en tamaño fijo */
 }
 
 .productos-container th, .productos-container td {
@@ -32,16 +39,19 @@
     text-align: center;
 }
 
-.productos-container th {
+th {
     background-color: #f4f4f4;
     font-weight: bold;
 }
 
-.productos-container .table-wrapper {
-    max-height: 500px; /* Establece una altura máxima para el área visible de la tabla */
-    overflow-y: auto; /* Agrega desplazamiento vertical si el contenido excede la altura máxima */
-    border: 1px solid #ddd; /* Agrega un borde para distinguir el área de desplazamiento */
+.table-wrapper {
+    flex-grow: 1; /* Hace que la tabla crezca para ocupar el espacio disponible */
+    overflow-y: auto; /* Permite que la tabla se desplace verticalmente si es necesario */
+    border: 1px solid #ddd;
+    padding: 0;
+    max-height: 100%; /* Establece el tamaño máximo basado en el contenedor padre */
 }
+
 
 .error-message {
     text-align: center;
@@ -147,15 +157,16 @@
 
 .header-container{
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 2px;
     width: 100%;
 }
 .search-container {
     display: flex;
     align-items: center;
     gap: 10px; /* Espacio entre los elementos */
+    margin-bottom: 9px;
 }
 
 .search-container select,
@@ -226,11 +237,7 @@
     display: inline-block;
 }
 
-/* productos.css */
-table {
-    table-layout: fixed; /* Fuerza a las columnas a mantener un tamaño fijo */
-    width: 100%; /* Asegura que la tabla ocupe todo el ancho disponible */
-}
+
 
 td, th {
     width: 15%; /* Ajusta este valor según tus necesidades */
@@ -265,15 +272,102 @@ input[type="checkbox"] {
     cursor: pointer; /* Para que se vea más interactivo */
 }
 
-.titulo {
-    text-align: center;
-    font-size: 24px;
-    margin-bottom: 20px;
+
+.table-wrapper .TitulosTabla{
+    background-color: white;
+    padding: 1px;
+    margin: 0;
+    line-height: 1.0;
+}
+
+tbody td {
+    padding: 10px;
+    margin: 0;
+}
+.productos-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Asegura que la altura ocupe toda la pantalla */
+    max-height: 100vh; /* Evita que crezca más allá de la altura de la ventana */
+    overflow: hidden; /* Evita que el contenido se desborde */
     width: 100%;
-    padding: 10px 0;
-    box-sizing: border-box;
+    max-width: 2200px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 
+
+.dropdown-toggle {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    display: block;
+    position: absolute;
+    top: 100%; /* Asegura que el menú aparezca justo debajo del botón */
+    right: 0;
+    background-color: #fff;
+    min-width: 220px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1000; /* Asegura que el menú esté por encima de otros elementos */
+    padding: 10px 0;
+    border-radius: 4px;
+}
+
+.dropdown-menu button,
+.dropdown-menu input {
+    background-color: white;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+.dropdown-menu button:hover,
+.dropdown-menu input:hover {
+    background-color: #f1f1f1;
+}
+.table-wrapper {
+    flex-grow: 1; /* Hace que la tabla crezca para ocupar el espacio disponible */
+    overflow-y: auto; /* Permite que la tabla se desplace verticalmente si es necesario */
+    border: 1px solid #ddd;
+    padding: 0;
+    max-height: max-content;
+}
+
+
+.dropdown-container {
+    position: relative; /* El contenedor del botón será el punto de referencia */
+}
+th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+thead th {
+    background-color: white;
+    line-height: 1.0;
+}
+.InformacionSuperior {
+    display: flex; /* Utilizamos flexbox para alinear elementos en una fila */
+    justify-content: space-between; /* Los elementos se distribuyen entre el espacio disponible */
+    align-items: center; /* Alineamos los elementos verticalmente en el centro */
+    width: 100%; /* Aseguramos que ocupe todo el ancho */
+    margin-bottom: 2px;
+    padding: 2px;
+    border-radius: 8px; /* Opcional: Redondea las esquinas */
+}
 
 
