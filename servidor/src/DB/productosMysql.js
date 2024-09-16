@@ -42,7 +42,6 @@ function todos(tabla) {
 
 function buscarPorNombre(nombreProducto) {
     return new Promise((resolve, reject) => {
-        // Usar el operador LIKE con comodines para buscar coincidencias parciales
         const query = `SELECT * FROM productos WHERE nombreProducto LIKE ?`;
         const searchTerm = `%${nombreProducto}%`;
 
@@ -65,39 +64,60 @@ function buscarPorIdProducto(id) {
 }
 
 function agregar(tabla, data) {
-    return new Promise((resolve, reject) => {
-        // Asegurarse de que 'data' sea un array
+    return new Promise(async (resolve, reject) => {
         const productosArray = Array.isArray(data) ? data : [data];
-        
-        const query = `INSERT INTO ${tabla} (idProducto, nombreProducto, valorUnitario, estado, tipo) VALUES ?`;
-        const values = productosArray.map(producto => [
-            producto.idProducto,
-            producto.nombreProducto,
-            producto.valorUnitario,
-            producto.estado,
-            producto.tipo
-        ]);
+        let productosAgregados = [];
+        let productosDuplicados = [];
 
-        conexion.query(query, [values], (error, result) => {
-            if (error) {
-                if (error.code === 'ER_DUP_ENTRY') {
-                    reject(new Error("Uno o más registros ya existen en la base de datos."));
+        for (let producto of productosArray) {
+            const values = [
+                producto.idProducto,
+                producto.nombreProducto,
+                producto.valorUnitario,
+                producto.estado,
+                producto.tipo
+            ];
+
+            const query = `INSERT INTO ${tabla} (idProducto, nombreProducto, valorUnitario, estado, tipo) VALUES (?, ?, ?, ?, ?)`;
+
+            try {
+                const result = await new Promise((resolve, reject) => {
+                    conexion.query(query, values, (error, result) => {
+                        if (error) {
+                            if (error.code === 'ER_DUP_ENTRY') {
+                                console.log(`Producto duplicado detectado: ${producto.nombreProducto} (${producto.tipo})`); // Mensaje de depuración
+                                reject(new Error("Duplicado"));
+                            } else {
+                                reject(error);
+                            }
+                        } else {
+                            resolve(result);
+                        }
+                    });
+                });
+
+                productosAgregados.push(producto);
+            } catch (error) {
+                if (error.message === "Duplicado") {
+                    productosDuplicados.push(producto);
                 } else {
-                    reject(error);
+                    return reject(error);
                 }
-            } else {
-                resolve(result);
             }
+        }
+
+
+        resolve({
+            productosAgregados,
+            productosDuplicados
         });
     });
 }
 
 
-
 function actualizar(tabla, id, data) {
     return new Promise(async (resolve, reject) => {
         try {
-            // Obtener el producto actual desde la base de datos
             const productoActual = await buscarPorIdProducto(id);
             if (!productoActual.length) {
                 return reject(new Error('Producto no encontrado.'));
@@ -105,16 +125,13 @@ function actualizar(tabla, id, data) {
 
             const productoExistente = productoActual[0];
 
-            // Verificar si el nombre o el tipo han cambiado
             if (data.nombreProducto !== productoExistente.nombreProducto || data.tipo !== productoExistente.tipo) {
-                // Verificar si ya existe otro producto con el mismo nombre y tipo
                 const productosConMismoNombreYTipo = await buscarPorNombreYTipo(data.nombreProducto, data.tipo);
                 if (productosConMismoNombreYTipo.length > 0 && productosConMismoNombreYTipo[0].idProducto !== id) {
                     return reject(new Error(`Ya existe un producto con el nombre "${data.nombreProducto}" y tipo "${data.tipo}".`));
                 }
             }
 
-            // Si no hay conflicto, realiza la actualización
             conexion.query(`UPDATE ${tabla} SET ? WHERE idProducto = ?`, [data, id], (error, result) => {
                 return error ? reject(error) : resolve(result);
             });
@@ -123,8 +140,6 @@ function actualizar(tabla, id, data) {
         }
     });
 }
-
-
 
 function eliminar(tabla, id) {
     console.log(id);
@@ -147,7 +162,6 @@ function query(tabla, consulta) {
     });
 }
 
-// Nueva función buscarPorEstado
 function buscarPorEstado(estado) {
     return new Promise((resolve, reject) => {
         conexion.query(`SELECT * FROM productos WHERE estado = ?`, [estado], (error, result) => {
@@ -155,7 +169,7 @@ function buscarPorEstado(estado) {
         });
     });
 }
-// Nueva función buscarPorTipo
+
 function buscarPorTipo(tipo) {
     return new Promise((resolve, reject) => {
         conexion.query(`SELECT * FROM productos WHERE tipo = ?`, [tipo], (error, result) => {
@@ -175,7 +189,7 @@ function eliminarMultiples(ids) {
 
 function buscarConFiltros(filtros) {
     return new Promise((resolve, reject) => {
-        let query = `SELECT * FROM productos WHERE 1=1`; // La condición `1=1` es siempre verdadera, lo que permite agregar condiciones dinámicas
+        let query = `SELECT * FROM productos WHERE 1=1`;
         const queryParams = [];
 
         if (filtros.idProducto) {
@@ -210,7 +224,6 @@ function buscarPorNombreYTipo(nombreProducto, tipo) {
     });
 }
 
-
 module.exports = {
     todos,
     buscarPorNombre,
@@ -225,4 +238,3 @@ module.exports = {
     buscarPorNombreYTipo,
     query
 };
-
