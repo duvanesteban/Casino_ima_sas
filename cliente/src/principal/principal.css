@@ -1,37 +1,85 @@
+html, body, #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 .principal-container {
-    width: 88%;
+    width: 100%;
     display: flex;
-    justify-content: space-between;
+    max-width: 2200px;
+    margin: 0 auto; /* Elimina el margen superior e inferior para que el contenedor ocupe todo el espacio */
+    background-color: #ffffff;
     padding: 20px;
-    background-color: #f0f0f0;
-    position: relative;
-    height: 100vh; /* Asegura que el contenedor ocupe toda la altura disponible */
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    min-height: calc(100vh - 40px); /* Ajusta la altura mínima para ocupar toda la pantalla */
 }
 
+
 .left-panel, .right-panel {
-    width: 50%; /* Ajusta el ancho para que haya espacio para el botón */
+    width: 37%; /* Ajusta el ancho para que haya espacio para el botón */
     background-color: #ffffff;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+.left-panel h1 {
+    text-align: center;
+    color: red;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+.form-group {
+    margin-bottom: 15px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+.horizontal-inputs {
+    display: flex;
+    justify-content: space-between;
+}
+.horizontal-inputs > div {
+    width: 48%;
+}
+.total-section {
+    background-color: gray;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    margin: 15px 0;
+    font-weight: bold;
+}
 .right-panel {
     position: relative; /* Asegura que el botón se posicione correctamente dentro del panel */
 }
 
-.product-button-container {
-    position: absolute;
-    top: -1px; /* Ajusta según sea necesario para que quede en la esquina superior derecha */
-    right: -160px; /* Ajusta según sea necesario para que quede en la esquina superior derecha */
-    z-index: 10;
+.buttons {
+    display: flex;
+    justify-content: space-between;
 }
 
+.buttons button {
+    padding: 10px;
+    width: 30%;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
 .product-button {
     background-color: white;
     border: 2px solid #000; /* Borde negro */
@@ -42,22 +90,59 @@
     cursor: pointer;
 }
 
+.right-panel {
+    width: 50%;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.receipt {
+    text-align: center;
+}
+.receipt h2 {
+    margin-bottom: 10px;
+}
+.receipt-table {
+    margin-top: 20px;
+}
+.receipt-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
 .product-button img {
     width: 20px;
     height: 20px;
     margin-right: 10px;
 }
 
+.receipt-table th, .receipt-table td {
+    padding: 8px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
 .product-button span {
     color: black; /* Texto en negro */
     font-weight: bold; /* Texto en negrilla */
     font-size: 16px; /* Tamaño de fuente */
 }
+.product-button img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
 .left-panel div{
     margin-bottom: 1%;
 }
+.product-button {
+    background-color: white;
+    border: 2px solid #000; /* Borde negro */
+    border-radius: 10px; /* Bordes redondeados */
+    padding: 30px 20px;
+}
 .buttons {
     display: flex;
+    align-items: center;
     margin-right: 40px;
 }
 .buttons button {
@@ -70,6 +155,11 @@
     margin-right: 10px; /* Espacio entre los botones */
 }
 
+.product-button-container {
+    position: absolute;
+    top: 10px;
+    right: 30px;
+}
 .buttons button:last-child {
     margin-right: 0; /* Elimina el margen derecho en el último botón */
 }
