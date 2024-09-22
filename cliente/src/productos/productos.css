@@ -58,6 +58,11 @@ th {
     color: red;
     margin-bottom: 20px;
 }
+.success-message {
+    color: green;
+    text-align: center;
+    margin-bottom: 20px;
+  }
 
 
 .modal {

@@ -7,6 +7,7 @@ import './productos.css';
 ReactModal.setAppElement('#root');
 
 function Productos() {
+    const [successMessage, setSuccessMessage] = useState(null); // Nueva variable de estado para éxito
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [productos, setProductos] = useState([]);
     const [error, setError] = useState(null);
@@ -269,14 +270,15 @@ function Productos() {
             .then(response => {
                 fetchProductos();
                 setIsEditing(null);
+                setError(null); // Limpiar el error si la solicitud fue exitosa
+                setSuccessMessage(response.data.body || 'Producto actualizado con éxito.'); // Mostrar mensaje de éxito
             })
             .catch(error => {
                 if (error.response && error.response.status === 400) {
-                    setError(error.response.data.message || 'Hubo un error al actualizar el producto. Por favor, inténtalo nuevamente.');
-                } else {
-                    setError('Hubo un error al actualizar el producto. Por favor, inténtalo nuevamente.');
-                }
-                console.error('Hubo un error al actualizar el producto', error);
+                     // Asignar el mensaje del servidor si está disponible
+                     setSuccessMessage(null);
+                    setError(error.response.data.body || 'Hubo un error al actualizar el producto. Por favor, inténtalo nuevamente.');
+                } 
             });
     };
     
@@ -381,9 +383,19 @@ function Productos() {
                 
             </div>
 
-            {error && (
-                <p className="error-message">{error}</p>
+            {(error || successMessage) && (
+                <>
+                    {error && (
+                        <p className="error-message">{error}</p>
+                    )}
+                    {successMessage && (
+                        <p className="success-message">{successMessage}</p>
+                    )}
+                </>
             )}
+
+
+
     
             <div className="table-wrapper">
                 <table>
