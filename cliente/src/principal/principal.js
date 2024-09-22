@@ -22,6 +22,9 @@ function Principal() {
 
     return (
         <div className="principal-container">
+            
+             
+
             <div className="left-panel">
                 <h1>CASINO IMASAS</h1>
                 <form>
@@ -57,7 +60,6 @@ function Principal() {
                             }} 
                         />
                     </div>
-
 
 
                     </div>
@@ -114,16 +116,17 @@ function Principal() {
             </table>
         </div>
     </div>
-    <div className="product-button-container">
+
+</div>
+
+<div className="product-button-container">
         <button className="product-button" onClick={handleNavigateToProductos}>
             <img src="ruta-a-la-imagen-del-carrito.png" alt="Productos" />
             <span>Productos</span>
         </button>
     </div>
-</div>
 </div> 
     );
 }
-
 
 export default Principal;
