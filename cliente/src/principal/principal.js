@@ -216,6 +216,7 @@ function Principal() {
                                 ref={cantidadRef} 
                                 onChange={(e) => setCantidad(e.target.value)}
                                 onKeyDown={handleCantidadEnter} 
+                                
                             />
                         </div>
                     </div>
