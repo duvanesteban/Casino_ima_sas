@@ -8,16 +8,7 @@ html, body, #root {
     padding: 0;
     box-sizing: border-box;
 }
-.productos-container {
-    width: 100%;
-    max-width: 2200px;
-    margin: 0 auto; /* Elimina el margen superior e inferior para que el contenedor ocupe todo el espacio */
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    min-height: calc(100vh - 40px); /* Ajusta la altura mínima para ocupar toda la pantalla */
-}
+
 
 .productos-container .titulo {
     font-size: 24px;
@@ -53,16 +44,38 @@ th {
 }
 
 
+.error-message, .success-message {
+    position: relative;
+    padding: 10px;
+    border: 1px solid;
+    border-radius: 5px;
+    display: inline-block;
+    max-width: 100%;
+    margin: 0 auto;
+    margin-bottom: 8px;
+}
 .error-message {
-    text-align: center;
-    color: red;
-    margin-bottom: 20px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border-color: #f5c6cb;
 }
 .success-message {
-    color: green;
-    text-align: center;
-    margin-bottom: 20px;
-  }
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
+}
+
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: red;
+    margin-left: 10px;
+    cursor: pointer;
+}
+.close-button:hover {
+    color: darkred;
+}
 
 
 .modal {
@@ -299,7 +312,7 @@ tbody td {
     max-width: 2200px;
     margin: 0 auto;
     background-color: #ffffff;
-    padding: 20px;
+    padding: 2px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
@@ -373,6 +386,17 @@ thead th {
     margin-bottom: 2px;
     padding: 2px;
     border-radius: 8px; /* Opcional: Redondea las esquinas */
+}
+.spinner {
+    font-size: 16px;
+    color: #007bff;
+    text-align: center;
+    margin: 20px;
+}
+.download-icon {
+    cursor: pointer;
+    width: 30px;
+    margin-left: 10px;
 }
 
 

@@ -18,16 +18,26 @@ html, body, #root {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    min-height: calc(100vh - 40px); /* Ajusta la altura mínima para ocupar toda la pantalla */
+    min-height: calc(115vh - 100px); /* Ajusta la altura mínima para ocupar toda la pantalla */
 }
 
 
-.left-panel, .right-panel {
+.left-panel{
     width: 37%; /* Ajusta el ancho para que haya espacio para el botón */
     background-color: #ffffff;
-    padding: 20px;
+    padding: 10px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative; /* Asegura que el botón se posicione correctamente dentro del panel */
+}
+.right-panel {
+    width: 50%; /* Ajusta el ancho para que haya espacio para el botón */
+    background-color: #ffffff;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative; /* Asegura que el botón se posicione correctamente dentro del panel */
+    margin: 0px;
 }
 
 .left-panel h1 {
@@ -65,22 +75,20 @@ html, body, #root {
     margin: 15px 0;
     font-weight: bold;
 }
-.right-panel {
-    position: relative; /* Asegura que el botón se posicione correctamente dentro del panel */
-}
 
-.buttons {
+
+.buttons{
     display: flex;
     justify-content: space-between;
 }
 
-.buttons button {
+.buttons button{
     padding: 10px;
     width: 30%;
     border-radius: 5px;
     border: 1px solid #ccc;
 }
-.product-button {
+.product-button{
     background-color: white;
     border: 2px solid #000; /* Borde negro */
     border-radius: 10px; /* Bordes redondeados */
@@ -88,15 +96,10 @@ html, body, #root {
     display: flex;
     align-items: center;
     cursor: pointer;
+    height: 10%;
 }
 
-.right-panel {
-    width: 50%;
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
+
 .receipt {
     text-align: center;
 }
@@ -105,6 +108,7 @@ html, body, #root {
 }
 .receipt-table {
     margin-top: 20px;
+    padding-bottom: 60px;
 }
 .receipt-table table {
     width: 100%;
@@ -134,18 +138,13 @@ html, body, #root {
 .left-panel div{
     margin-bottom: 1%;
 }
-.product-button {
-    background-color: white;
-    border: 2px solid #000; /* Borde negro */
-    border-radius: 10px; /* Bordes redondeados */
-    padding: 30px 20px;
-}
+
 .buttons {
     display: flex;
     align-items: center;
     margin-right: 40px;
 }
-.buttons button {
+.buttons button, .ParteInferior button {
     flex-grow: 1; /* Permite que cada botón crezca proporcionalmente */
     padding: 10px;
     border-radius: 5px;
@@ -158,8 +157,44 @@ html, body, #root {
 .product-button-container {
     position: absolute;
     top: 10px;
-    right: 30px;
+    right: 5px;
+    height: 95%;
+    padding: 10px;
 }
+.product-button-container button {
+   margin-top: 10px;
+   height: 10%;
+   width: 90%;
+   text-align: center;
+   justify-content: center;     /* Centra horizontalmente el texto */
+   align-items: center;         /* Centra verticalmente el texto */
+   text-align: center;          
+}
+
+
 .buttons button:last-child {
     margin-right: 0; /* Elimina el margen derecho en el último botón */
 }
+
+.receipt-table th, .receipt-table td {
+    width: 100px; /* Puedes ajustar este valor según el espacio que desees */
+    text-align: center;
+}
+
+.receipt-table th:first-child, .receipt-table td:first-child {
+    width: 300px; /* Mayor espacio para la columna del producto */
+}
+.ParteInferior {
+    position: absolute;
+    bottom: 0;
+    width: 98%; /* Ajusta este valor según sea necesario */
+    height: 50px;
+    text-align: right;
+    background-color: #f8f9fa;
+    margin-bottom: 10px;
+
+    /* Propiedades para centrar horizontalmente */
+    left: 50%; 
+    transform: translateX(-50%);
+}
+

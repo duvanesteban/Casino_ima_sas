@@ -142,7 +142,7 @@ async function eliminarMultiples(req, res, next) {
     try {
         const { ids } = req.body;
         await controlador.eliminarMultiples(ids);
-        respuesta.success(req, res, 'Productos eliminados con éxito', 200);
+        respuesta.success(req, res, 'Producto(s) eliminado(s) con éxito', 200);
     } catch (err) {
         next(err);
     }
