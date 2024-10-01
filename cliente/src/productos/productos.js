@@ -7,6 +7,8 @@ import './productos.css';
 ReactModal.setAppElement('#root');
 
 function Productos() {
+    const [productosDuplicados, setProductosDuplicados] = useState([]);
+    const [loading, setLoading] = useState(false); // Nuevo estado para manejar el spinner
     const [successMessage, setSuccessMessage] = useState(null); // Nueva variable de estado para éxito
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [productos, setProductos] = useState([]);
@@ -162,16 +164,70 @@ function Productos() {
 
     // Nueva función para agregar productos desde el archivo Excel cargado
     const handleAddProductosFromExcel = () => {
+        setLoading(true); // Iniciar spinner
         axios.post('http://localhost:3002/productos/', uploadedExcelData)
             .then(response => {
+                const { productosAgregados, productosDuplicados } = response.data.body;
+    
+                // Mostrar mensajes según la respuesta del servidor
+                let successMsg = "";
+                let errorMsg = "";
+    
+                if (productosAgregados.length > 0) {
+                    successMsg = `Se ha(n) agregado ${productosAgregados.length} producto(s) correctamente.`;
+                }
+    
+                if (productosDuplicados.length <= 5) {
+                    const nombresDuplicados = productosDuplicados
+                        .map(p => `${p.nombreProducto} (${p.tipo})`)
+                        .join(", ");
+                    errorMsg = `Ya existen productos duplicados: ${nombresDuplicados}`;
+                } 
+                
+                if (productosDuplicados.length > 5) {
+                    errorMsg = `Hay ${productosDuplicados.length} producto(s) duplicados.`;
+                    // Guardar los productos duplicados en el estado
+                    // setProductosDuplicados(productosDuplicados);
+                    generarExcelDuplicados(productosDuplicados);
+                }
+    
+                if (successMsg) {
+                    setSuccessMessage(successMsg); // Mensaje de éxito en verde
+                }
+    
+                if (errorMsg) {
+                    setError(errorMsg); // Mensaje de error en rojo
+                }
+    
                 fetchProductos(); // Refrescar la lista de productos después de agregar
-                setUploadedExcelData([]); // Limpiar los datos cargados
             })
             .catch(error => {
                 setError('Hubo un error al agregar los productos desde Excel. Por favor, inténtalo nuevamente.');
                 console.error('Hubo un error al agregar los productos desde Excel', error);
+            })
+            .finally(() => {
+                setLoading(false); // Detener spinner
             });
     };
+    
+    
+    // Función para generar el archivo Excel de productos duplicados
+const generarExcelDuplicados = (productosDuplicados) => {
+    // Reorganizar los productos duplicados en el formato deseado
+    const productosOrdenados = productosDuplicados.map(producto => ({
+        idProducto: producto.idProducto,
+        tipo: producto.tipo,
+        nombreProducto: producto.nombreProducto,
+        valorUnitario: producto.valorUnitario,
+        estado: producto.estado
+    }));
+
+    // Generar la hoja de trabajo con los productos duplicados
+    const worksheet = XLSX.utils.json_to_sheet(productosOrdenados);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "ProductosDuplicados");
+    XLSX.writeFile(workbook, "productos_duplicados.xlsx");
+};
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -239,10 +295,10 @@ function Productos() {
                 .then(response => {
                     setProductos(prevProductos => prevProductos.filter(producto => !selectedProducts.includes(producto.idProducto)));
                     setSelectedProducts([]);
+                    setSuccessMessage(response.data.body || 'Producto eliminado con éxito.'); // Mostrar mensaje de éxito
                 })
                 .catch(error => {
-                    setError('Hubo un error al eliminar los productos seleccionados. Por favor, inténtalo nuevamente.');
-                    console.error('Hubo un error al eliminar los productos', error);
+                    setError('Hubo un error al eliminar el producto. Por favor, inténtalo nuevamente.')
                 });
         }
     };
@@ -251,8 +307,29 @@ function Productos() {
     const handleAddProducto = () => {
         axios.post('http://localhost:3002/productos', newProducto)
             .then(response => {
-                fetchProductos();
-                setIsModalOpen(false);
+                const { productosAgregados, productosDuplicados } = response.data.body;
+    
+                // Mostrar mensajes según la respuesta del servidor
+                if (productosAgregados.length > 0) {
+                    // Limpiar el mensaje de error antes de establecer un mensaje de éxito
+                    //setError(null);
+                    const nombresAgregados = productosAgregados
+                        .map(p => `${p.nombreProducto} (${p.tipo})`) // Mostrar nombre y tipo
+                        .join(", ");
+                    setSuccessMessage(`Se ha(n) agregado ${productosAgregados.length} producto(s) correctamente: ${nombresAgregados}`);
+                }
+                
+    
+                if (productosDuplicados.length > 0) {
+                    // Limpiar el mensaje de éxito antes de establecer un mensaje de error
+                    //setSuccessMessage(null);
+                    const nombresDuplicados = productosDuplicados.map(p => `${p.nombreProducto} (${p.tipo})`)
+                    .join(", ");
+                    setError(`Ya existen productos duplicados: ${nombresDuplicados}`);
+                }
+    
+                fetchProductos(); // Refrescar la lista de productos después de agregar
+                setIsModalOpen(false); // Cerrar el modal
             })
             .catch(error => {
                 if (error.response && error.response.status === 400) {
@@ -325,9 +402,9 @@ function Productos() {
                 />
                 <button 
                     onClick={handleAddProductosFromExcel} 
-                    disabled={uploadedExcelData.length === 0}
+                    disabled={uploadedExcelData.length === 0 || loading}
                 >
-                    Agregar Productos desde Excel
+                    {loading ? 'Cargando...' : 'Agregar Productos desde Excel'} {/* Mostrar spinner */}
                 </button>
                 <button onClick={handleGenerateExcel}>Generar Excel</button>
                 <button onClick={handleOpenModal}>Agregar Producto</button>
@@ -336,7 +413,7 @@ function Productos() {
 
       </div>
     </div>
-
+    {loading && <div className="spinner">Cargando...</div>}
 
             <div className="header-container">
                 <div className="search-container">
@@ -385,14 +462,22 @@ function Productos() {
 
             {(error || successMessage) && (
                 <>
-                    {error && (
-                        <p className="error-message">{error}</p>
-                    )}
+                {error && (
+                    <div className="error-message">
+                        {error}
+                        <button onClick={() => setError(null)} className="close-button">X</button>
+                    </div>
+                )}
+
                     {successMessage && (
-                        <p className="success-message">{successMessage}</p>
+                        <div className="success-message">
+                            {successMessage}
+                            <button onClick={() => setSuccessMessage(null)} className="close-button">X</button>
+                        </div>
                     )}
                 </>
             )}
+
 
 
 
