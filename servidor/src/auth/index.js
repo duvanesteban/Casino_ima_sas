@@ -3,28 +3,33 @@ const moment = require('moment');
 const config = require('../config');
 
 const secret = config.jwt.secret;
+console.log('Secreto usado para JWT:', secret);
 
-// Generar token JWT
 function asignarToken(data) {
     const payload = {
-        sub: data.idUsuario,
+        idUsuario: data.IdUsuario,        // ID del usuario
+        nombreUsuario: data.nombre, // Nombre del usuario
         iat: moment().unix(),
-        exp: moment().add(14, 'days').unix()
+        exp: moment().add(14, 'days').unix()  // Expiración en 14 días
     };
-    return jwt.sign(payload, secret);
+
+    // Generar el token
+    const token = jwt.sign(payload, secret);
+
+    return token;  // Devolver el token generado
 }
 
+
+
 function verificarToken(token) {
+    console.log('Verificando token:', token);  // Log para verificar el token
     return jwt.verify(token, secret);
 }
 
 const chequearToken = {
-    confirmarToken: function(req) {
+    confirmarToken: function (req) {
         const decodificado = decodificarCabecera(req);
-
-        if (decodificado.idUsuario !== req.body.idUsuario) {
-            throw new Error("No tienes privilegios para hacer esto");
-        }
+        return decodificado; // Retorna el token decodificado
     }
 };
 
@@ -33,7 +38,7 @@ function obtenerToken(autorizacion) {
         throw new Error('No viene token');
     }
     if (autorizacion.indexOf('Bearer') === -1) {
-        throw new Error('Formato invalido');
+        throw new Error('Formato inválido');
     }
 
     let token = autorizacion.replace('Bearer ', '');
@@ -45,7 +50,7 @@ function decodificarCabecera(req) {
     const token = obtenerToken(autorizacion);
     const decodificado = verificarToken(token);
 
-    req.user = decodificado;
+    req.user = decodificado; // Almacenar los datos del usuario en la request
     return decodificado;
 }
 

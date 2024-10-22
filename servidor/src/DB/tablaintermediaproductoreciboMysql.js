@@ -36,8 +36,21 @@ conMysql();
 
 function todos(tabla) {
     return new Promise((resolve, reject) => {
-        conexion.query(`SELECT * FROM ${tabla}`, (error, result) => {
+        const query = `
+            SELECT 
+                ti.idTablaIntermediaProductoRecibo, 
+                ti.idRecibo,
+                ti.idProducto, 
+                p.nombreProducto,
+                ti.cantidadProductosComprados, 
+                ti.totalCantidadPorPrecio 
+            FROM ${tabla} ti
+            JOIN productos p ON ti.idProducto = p.idProducto;
+        `;
+
+        conexion.query(query, (error, result) => {
             if (error) {
+                console.error('Error en la consulta:', error);
                 reject(error);
             } else {
                 resolve(result);
@@ -45,6 +58,9 @@ function todos(tabla) {
         });
     });
 }
+
+
+
 
 function uno(tabla, id) {
     return new Promise((resolve, reject) => {
@@ -83,6 +99,7 @@ function agregar(tabla, data) {
     });
 }
 
+
 function eliminar(tabla, id) {
     return new Promise((resolve, reject) => {
         conexion.query(`DELETE FROM ${tabla} WHERE idTablaIntermediaProductoRecibo = ?`, id, (error, result) => {
@@ -95,14 +112,14 @@ function eliminar(tabla, id) {
     });
 }
 
-function query(tabla, consulta) {
+function query(tabla, condicion) {
     return new Promise((resolve, reject) => {
-        conexion.query(`SELECT * FROM ${tabla} WHERE ?`, consulta, (error, result) => {
+        let queryStr = `SELECT * FROM ${tabla} WHERE ?`;
+        conexion.query(queryStr, condicion, (error, result) => {
             if (error) {
-                reject(error);
-            } else {
-                resolve(result);
+                return reject(error);
             }
+            resolve(result);
         });
     });
 }

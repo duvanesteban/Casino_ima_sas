@@ -9,7 +9,7 @@ const app = express();
 app.get('/', todos);
 app.get('/:nombreProducto', buscarPorNombre);
 app.get('/idProducto/:id', buscarPorIdProducto);
-app.post('/', agregar); // Usar multer para manejar la carga de imágenes si es necesario
+app.post('/', agregar); 
 app.put('/:idProducto', actualizar);
 app.delete('/:idProducto', eliminar);
 app.post('/eliminar-multiples', eliminarMultiples);

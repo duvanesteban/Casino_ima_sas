@@ -19,9 +19,20 @@ function LoginForm({ onLoginSuccess }) {
         e.preventDefault();
         try {
             const response = await axios.post('http://localhost:3002/usuarios/login', formData);
-            console.log(response.data);
-            alert('Inicio de sesión exitoso');
-            onLoginSuccess();
+
+            // Verifica si la respuesta tiene el token dentro de "body"
+            const token = response.data.body.token;
+
+            if (token) {
+                // Guardar el token en localStorage
+                localStorage.setItem('token', token);
+                console.log('Token guardado:', token);
+
+                alert('Inicio de sesión exitoso');
+                onLoginSuccess();
+            } else {
+                alert('No se recibió un token en la respuesta.');
+            }
         } catch (error) {
             alert('Error en el inicio de sesión');
             console.error('Error al iniciar sesión:', error);

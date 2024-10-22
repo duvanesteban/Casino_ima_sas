@@ -4,6 +4,8 @@ import RegisterForm from "./login_registro/RegisterForm";
 import LoginForm from './login_registro/LoginForm';
 import Principal from './principal/principal'; // Importa el componente Principal
 import Productos from './productos/productos'; // Importa el componente Productos
+import TablaInter from './tablaInter/tablaInter';
+import Recibos from './recibos/recibos'; // Importa el componente Recibos
 import './styles.css';
 
 function App() {
@@ -42,6 +44,8 @@ function App() {
             <Routes>
               <Route path="/principal" element={<Principal />} />
               <Route path="/productos" element={<Productos />} />
+              <Route path="/tablaInter" element={<TablaInter />} />
+              <Route path="/recibos" element={<Recibos />} /> {/* Ruta para Recibos */}
             </Routes>
           ) : (
             showLogin ? <LoginForm onLoginSuccess={handleLoginSuccess} /> : <RegisterForm />
