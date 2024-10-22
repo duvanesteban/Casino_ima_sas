@@ -1,7 +1,6 @@
 const TABLA = 'usuarios';
 const bcrypt = require('bcrypt'); // Asegúrate de tener bcrypt requerido
-const jwt = require('jsonwebtoken');
-const SECRET_KEY = 'tu_clave_secreta'; 
+const auth = require('../../auth'); // Importar la función asignarToken desde auth
 
 module.exports = function(dbInyectada) {
     let db = dbInyectada;
@@ -73,6 +72,8 @@ module.exports = function(dbInyectada) {
     async function iniciarSesion({ idUsuario, contrasena }) {
         const user = await db.buscarPorIdentificacion(idUsuario);
 
+        console.log('este es el usuario',user); // Verifica si user tiene el campo idUsuario
+
         if (!user) {
             throw new Error('Usuario no encontrado');
         }
@@ -82,11 +83,8 @@ module.exports = function(dbInyectada) {
             throw new Error('Contraseña incorrecta');
         }
 
-        const token = jwt.sign(
-            { idUsuario: user.idUsuario, rol: user.rol },
-            SECRET_KEY,
-            { expiresIn: '1h' }
-        );
+        // Aquí usas la función asignarToken de auth en lugar de generar el token directamente
+        const token = auth.asignarToken(user);
 
         return { token, usuario: user };
     }

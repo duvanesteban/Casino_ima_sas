@@ -5,7 +5,8 @@ const morgan = require('morgan');
 const cors = require('cors');
 const productos = require('./modulos/productos/rutas.js');
 const usuarios = require('./modulos/usuarios/rutas.js');
-const tablaintermediaproductorecibo = require('./modulos/tablaintermediaproductorecibo/rutas.js');
+const tablainter = require('./modulos/tablainter/rutas.js');
+const recibos = require('./modulos/recibos/rutas.js');
 const error = require('./red/errores.js');
 
 
@@ -20,7 +21,8 @@ app.set('port', config.app.port);
 
 app.use('/productos', productos);
 app.use('/usuarios', usuarios);
-app.use('/tablaintermediaproductorecibo', tablaintermediaproductorecibo);
+app.use('/tablainter', tablainter);
+app.use('/recibos', recibos);
 
 app.use((err, req, res, next) => {
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {

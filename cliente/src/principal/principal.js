@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import jwt_decode from "jwt-decode";
 import axios from 'axios';
 import './principal.css';
 
 function Principal() {
     const navigate = useNavigate();
-    const [valorRecibido, setValorRecibido] = useState(''); 
+    const [valorRecibido, setValorRecibido] = useState('0'); 
     const [cambio, setCambio] = useState(''); 
     const [numeroRecibo, setNumeroRecibo] = useState(1); 
     const [cantidad, setCantidad] = useState(1); 
@@ -16,22 +17,46 @@ function Principal() {
     const [descripcion, setDescripcion] = useState(''); 
     const [error, setError] = useState(null); 
     const [productosAgregados, setProductosAgregados] = useState([]); 
+    const [nombreUsuario, setNombreUsuario] = useState(''); // Estado para el nombre del usuario
+    const [idUsuario, setIdUsuario] = useState('');
 
     const descripcionRef = useRef(null);
     const cantidadRef = useRef(null);
     const valorRecibidoRef = useRef(null);
     const botonRef = useRef(null);  // Referencia al botón "Grabar"
 
-
+    useEffect(() => {
+        const token = localStorage.getItem('token'); // Obtener el token del localStorage
+        if (token) {
+            const decodedToken = jwt_decode(token); // Decodificar el token
+            console.log(decodedToken);  // Ver qué propiedades tiene el token
+            const nombre = decodedToken.nombreUsuario; // Extraer el nombre del usuario
+            const id = decodedToken.idUsuario; // Extraer el ID del usuario
+            setIdUsuario(id);  // Guardar el ID del usuario sin agregar "ID: " al valor
+            setNombreUsuario(nombre); // Guardar el nombre en el estado
+        }
+    }, []);
+    
+    
 
     useEffect(() => {
         const valorRecibidoNum = parseFloat(valorRecibido.replace(/[,.]/g, '')) || 0;
-        const cambioCalculado = valorRecibidoNum - total;
+        const totalProductos = calcularTotalProductos(); // Usar la suma de todos los productos
+        const cambioCalculado = valorRecibidoNum - totalProductos; // Restar el total de productos
         setCambio(cambioCalculado); 
-    }, [valorRecibido, total]);
+    }, [valorRecibido, productosAgregados]); // Asegurarse de recalcular cuando cambie el valor recibido o la lista de productos
+    
+
+    const handleNavigateToTablaInter = () => {
+        navigate('/tablaInter');
+    };
 
     const handleNavigateToProductos = () => {
         navigate('/productos');
+    };
+
+    const handleNavigateToRecibos = () => {
+        navigate('/recibos');
     };
 
     const handleCodigoChange = (e) => {
@@ -72,6 +97,7 @@ function Principal() {
             }
         }
     };
+    
 
     const handleDescripcionEnter = (e) => {
         if (e.key === 'Enter') {
@@ -129,8 +155,9 @@ function Principal() {
             setError("Por favor, complete todos los campos.");
             return;
         }
-
+    
         const nuevoProducto = {
+            id: codigo,  // Aquí se añade el ID del producto
             nombre: producto,
             cantidad: cantidad,
             precio: precio,
@@ -138,8 +165,8 @@ function Principal() {
         };
         
         setProductosAgregados([...productosAgregados, nuevoProducto]);
-       
     };
+    
 
     // Función para eliminar un producto de la lista
     const handleEliminarProducto = (index) => {
@@ -162,10 +189,64 @@ function Principal() {
         setProductosAgregados([]);  // Limpia la lista de productos
     };
 
+    const calcularTotalProductos = () => {
+        return productosAgregados.reduce((acc, prod) => acc + prod.total, 0);
+    };
+    
+    const handleEnviarRecibo = async () => {
+        try {
+            const token = localStorage.getItem('token');  // Obtener el token JWT almacenado en el localStorage
+            const recibo = {
+                valorTotal: calcularTotalProductos(),
+                montoPagado: parseFloat(valorRecibido.replace(/[,.]/g, '')) || 0,
+                cambio: cambio,
+                idUsuario: idUsuario,  // Aquí estamos usando directamente el idUsuario almacenado
+                cant: productosAgregados.length
+            };
+    
+            const productos = productosAgregados.map(prod => ({
+                idProducto: prod.id,  // El ID del producto agregado
+                cantidadProductosComprados: prod.cantidad,
+                totalCantidadPorPrecio: prod.total
+            }));
+    
+            const data = { recibo, productos };  // Aquí enviamos la información en la estructura correcta
+            console.log("esta es la información que voy a enviar para crear el recibo", data);
+            
+            // Hacer la petición POST al servidor con el token JWT en los encabezados
+            const response = await axios.post('http://localhost:3002/recibos/', data, {
+                headers: {
+                    Authorization: `Bearer ${token}`  // Aquí se agrega el token en el encabezado Authorization
+                }
+            });
+    
+            // Verificar si el estado es 201, que indica creación exitosa
+            if (response.status === 201) {
+                console.log('Recibo creado con éxito:', response.data);
+                alert('Recibo creado con éxito');
+                handleLimpiarCampos();  // Limpiar los campos después de la creación
+            } else {
+                console.error('Error al crear el recibo:', response);
+                alert('Error al crear el recibo');
+            }
+        } catch (error) {
+            console.error('Error al enviar los datos:', error);
+            alert('Error al enviar los datos');
+        }
+    };
+    
+    
+    
+    
+    
+    
+    
+
     return (
         <div className="principal-container">
             <div className="left-panel">
                 <h1>CASINO IMASAS</h1>
+                <h1>Bienvenid@, {nombreUsuario}</h1> {/* Mostrar el mensaje de bienvenida */}
                 <form>
                     <div className="form-group">
                         <label htmlFor="codigo">Código</label>
@@ -223,7 +304,7 @@ function Principal() {
                     <div className="total-section">
                         Valor Producto : {total.toLocaleString('ES-MX')}
                         <br />
-                        TOTAL :
+                        TOTAL : {calcularTotalProductos().toLocaleString('es-MX')}
                     </div>
                     {error && <p style={{color: 'red'}}>{error}</p>}
                     <div className="form-group">
@@ -245,8 +326,8 @@ function Principal() {
                     <div className="buttons">
                         <button type="button" onClick={handleGrabarProducto} ref={botonRef}>Grabar</button>
                         <button type="button" onClick={handleLimpiarCampos}>Limpiar</button>
-                        <button type="button">Imprimir</button>
-                    </div>  
+                        <button type="button" onClick={handleEnviarRecibo}>Imprimir</button>
+                    </div>
                 </form>
             </div>
             <div className="right-panel">
@@ -259,6 +340,7 @@ function Principal() {
                         <table>
                             <thead>
                                 <tr>
+                                    <th>ID</th>  {/* Nueva columna para mostrar el ID */}
                                     <th>Producto</th>
                                     <th>Cant.</th>
                                     <th>Precio</th>
@@ -269,8 +351,23 @@ function Principal() {
                             <tbody>
                                 {productosAgregados.map((prod, index) => (
                                     <tr key={index}>
+                                        <td style={{ width: '5px', textAlign: 'center' }}>{prod.id}</td> {/* Reducir el ancho de la columna ID */}
                                         <td>{prod.nombre}</td>
-                                        <td>{prod.cantidad}</td>
+                                        <td style={{ textAlign: 'center' }}>
+                                            <input
+                                                type="number"
+                                                value={prod.cantidad}
+                                                min="1"
+                                                style={{ width: '30px', textAlign: 'center', border: 'none' }}
+                                                onChange={(e) => {
+                                                    const nuevaCantidad = parseInt(e.target.value, 10);
+                                                    const nuevosProductos = [...productosAgregados];
+                                                    nuevosProductos[index].cantidad = nuevaCantidad;
+                                                    nuevosProductos[index].total = nuevosProductos[index].precio * nuevaCantidad;
+                                                    setProductosAgregados(nuevosProductos);
+                                                }}
+                                            />
+                                        </td>
                                         <td>{prod.precio.toLocaleString('es-MX')}</td>
                                         <td>{prod.total.toLocaleString('es-MX')}</td>
                                         <td>
@@ -279,15 +376,15 @@ function Principal() {
                                     </tr>
                                 ))}
                             </tbody>
+
+
+
                         </table>
                     </div>
                     <div className='ParteInferior'>
                     <button type="button" onClick={LimpiarCampos} onKeyDown={handleBotonEnter} >Limpiar</button>
                     </div>
                 </div>
-
-
-                
             </div>
 
             <div className="product-button-container">
@@ -296,9 +393,14 @@ function Principal() {
                     <span>Productos</span>
                 </button>
 
-                <button className="product-button" onClick={handleNavigateToProductos}>
+                <button className="product-button" onClick={handleNavigateToTablaInter}>
                     <img src="ruta-a-la-imagen-del-carrito.png" alt="Productos" />
-                    <span>Facturas</span>
+                    <span>Registros</span>
+                </button>
+
+                <button className="product-button" onClick={handleNavigateToRecibos}>
+                    <img src="ruta-a-la-imagen-del-carrito.png" alt="Productos" />
+                    <span>Recibos</span>
                 </button>
             </div>
         </div> 
